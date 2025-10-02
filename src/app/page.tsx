@@ -1,13 +1,9 @@
-"use client"
-import { Button } from "@/components/ui/button";
+import React from 'react'
 
 const page = () => {
   return (
-    <div>
-      {" "}
-      <Button onClick={() => alert()}>Click me</Button>
-    </div>
-  );
-};
+    <div className='text-7xl'>page</div>
+  )
+}
 
-export default page;
+export default page
