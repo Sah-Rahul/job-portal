@@ -3,7 +3,7 @@
 import React, { ChangeEvent, FC, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-import RegisterInterface from "@/interfaceTypes/register.interface";
+import { RegisterInterface } from "@/interfaceTypes/register.interface";
 import { registerSchema } from "@/validation/registerSchema";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from "next/link";
 
 const Register: FC = () => {
   const [formData, setFormData] = useState<RegisterInterface>({
@@ -68,7 +69,9 @@ const Register: FC = () => {
       <form className="space-y-4" onSubmit={handleSubmit}>
         {/* Full Name */}
         <div>
-          <Label  className="mb-1" htmlFor="name">Full Name</Label>
+          <Label className="mb-1" htmlFor="name">
+            Full Name
+          </Label>
           <Input
             id="name"
             value={formData.name}
@@ -84,7 +87,9 @@ const Register: FC = () => {
 
         {/* Username */}
         <div>
-          <Label  className="mb-1" htmlFor="userName">Username</Label>
+          <Label className="mb-1" htmlFor="userName">
+            Username
+          </Label>
           <Input
             id="userName"
             value={formData.userName}
@@ -100,7 +105,9 @@ const Register: FC = () => {
 
         {/* Email */}
         <div>
-          <Label  className="mb-1" htmlFor="email">Email Address</Label>
+          <Label className="mb-1" htmlFor="email">
+            Email Address
+          </Label>
           <Input
             id="email"
             type="email"
@@ -117,7 +124,9 @@ const Register: FC = () => {
 
         {/* Role */}
         <div>
-          <Label  className="mb-1" htmlFor="role">I am a</Label>
+          <Label className="mb-1" htmlFor="role">
+            I am a
+          </Label>
           <Select
             value={formData.role}
             onValueChange={(value) =>
@@ -139,7 +148,9 @@ const Register: FC = () => {
 
         {/* Password */}
         <div className="relative">
-          <Label  className="mb-1" htmlFor="password">Password</Label>
+          <Label className="mb-1" htmlFor="password">
+            Password
+          </Label>
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
@@ -165,7 +176,9 @@ const Register: FC = () => {
 
         {/* Confirm Password */}
         <div className="relative">
-          <Label className="mb-1" htmlFor="confirmPassword">Confirm Password</Label>
+          <Label className="mb-1" htmlFor="confirmPassword">
+            Confirm Password
+          </Label>
           <Input
             id="confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
@@ -198,9 +211,9 @@ const Register: FC = () => {
 
       <p className="text-sm text-center mt-4">
         Already have an account?{" "}
-        <a href="/login" className="text-blue-600 hover:underline">
-          Sign in here
-        </a>
+        <Link href="/login" className="text-blue-600 hover:underline">
+          Login
+        </Link>
       </p>
     </div>
   );

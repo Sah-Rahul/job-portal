@@ -1,4 +1,4 @@
-interface RegisterInterface {
+export interface RegisterInterface {
   name: string;
   userName: string;
   email: string;
@@ -7,4 +7,7 @@ interface RegisterInterface {
   role: "applicant" | "recruiter";
 }
 
-export default RegisterInterface;
+export interface loginInterface {
+  email: string;
+  password: string;
+}
