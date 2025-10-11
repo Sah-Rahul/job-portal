@@ -9,6 +9,7 @@ import userRouter from "./src/routes/user.routes.js";
 import companyRouter from "./src/routes/company.routes.js";
 import errorMiddleware from "./src/middleware/errorMiddleware.js";
 import jobRouter from "./src/routes/job.routes.js";
+import applicationRouter from "./src/routes/application.routes.js";
 
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use(
 app.use('/api/v1/auth', userRouter);
 app.use('/api/v1/company', companyRouter);
 app.use('/api/v1/job', jobRouter);
+app.use('/api/v1/application', applicationRouter);
 
 app.use(errorMiddleware);
 
