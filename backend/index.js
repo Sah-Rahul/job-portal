@@ -1,12 +1,13 @@
-import express from "express";
-import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import express from "express";
+import cookieParser from "cookie-parser";
 
 // routes 
-import userRouter from "./src/routes/user.routes.js";
-import errorMiddleware from "./src/middleware/errorMiddleware.js";
 import ConnectDb from "./src/config/db.js";
+import userRouter from "./src/routes/user.routes.js";
+import companyRouter from "./src/routes/company.routes.js";
+import errorMiddleware from "./src/middleware/errorMiddleware.js";
 
 
 dotenv.config();
@@ -25,7 +26,8 @@ app.use(
     })
 );
 
-app.use('/api/v1/auth/', userRouter);
+app.use('/api/v1/auth', userRouter);
+app.use('/api/v1/company', companyRouter);
 
 app.use(errorMiddleware);
 
