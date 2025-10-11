@@ -163,7 +163,7 @@ const Register: FC = () => {
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 top-10 text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="absolute right-3 top-6.5 cursor-pointer text-gray-500 hover:text-gray-700 focus:outline-none"
             tabIndex={-1}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
@@ -191,7 +191,7 @@ const Register: FC = () => {
           <button
             type="button"
             onClick={() => setShowConfirmPassword((prev) => !prev)}
-            className="absolute right-3 top-10 text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="absolute right-3 top-6.5 text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer"
             tabIndex={-1}
             aria-label={showConfirmPassword ? "Hide password" : "Show password"}
           >
