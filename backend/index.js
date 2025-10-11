@@ -3,7 +3,12 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 
-// Load environment variables
+// routes 
+import userRouter from "./src/routes/user.routes.js";
+import errorMiddleware from "./src/middleware/errorMiddleware.js";
+import ConnectDb from "./src/config/db.js";
+
+
 dotenv.config();
 
 const app = express();
@@ -20,10 +25,14 @@ app.use(
     })
 );
 
-// app.use(errorMiddleware);
+app.use('/api/v1/auth/', userRouter);
 
-const PORT = process.env.PORT || 4000
+app.use(errorMiddleware);
 
-app.listen(() =>{
-    console.log(`server running on ${PORT}✅ `)
-})
+
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+    ConnectDb()
+    console.log(`server running on ${PORT} ✅`);
+});
