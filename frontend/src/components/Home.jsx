@@ -5,7 +5,7 @@ const Home = () => {
   return (
     <>
       <Layout>
-        <div className="h-screen bg-red-500">Home</div>
+        <div className="h-screen bg-black">Home</div>
       </Layout>
     </>
   );

@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import asyncHandler from "../utilis/asyncHandler.js";
 import { ApiError } from "../utilis/ApiError.js";
@@ -37,7 +37,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new ApiResponse(201, "Account created successfully."));
+    .json(new ApiResponse(201, "Account created successfully", userData));
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
@@ -79,7 +79,8 @@ export const updateProfile = asyncHandler(async (req, res) => {
   const userId = req.id;
 
   // Check if skills is provided and is a string, else use empty array
-  const skillsArray = skills && typeof skills === "string" ? skills.split(",") : [];
+  const skillsArray =
+    skills && typeof skills === "string" ? skills.split(",") : [];
 
   // Build update object including nested fields
   const updateData = {
@@ -110,4 +111,3 @@ export const updateProfile = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, updatedUser, "Profile updated successfully."));
 });
-

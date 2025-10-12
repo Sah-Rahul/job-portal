@@ -3,11 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Briefcase, User, Mail, Phone, Lock, Upload } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Briefcase, User, Mail, Phone, Lock, Upload, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
+import { USER_API_POINT } from "../utils/constant.js";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "../store/slices/authSlice";
 
 const Signup = () => {
+  const dispatch = useDispatch();
+  const { loading } = useSelector((store) => store.auth);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -32,7 +40,33 @@ const Signup = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("Form Submitted:", formData);
+    try {
+      dispatch(setLoading(true));
+
+      const form = new FormData();
+      form.append("fullName", formData.fullName);
+      form.append("email", formData.email);
+      form.append("phoneNumber", formData.phoneNumber);
+      form.append("password", formData.password);
+      form.append("role", formData.role);
+      if (formData.file) {
+        form.append("file", formData.file);
+      }
+
+      const { data } = await axios.post(`${USER_API_POINT}/register`, form, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (data.success) {
+        toast.success(data.data || data.message || "Registration successful!");
+      }
+      navigate("/login");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   return (
@@ -206,7 +240,12 @@ const Signup = () => {
                   onClick={handleSubmit}
                   className="w-full h-11 cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-medium text-base"
                 >
-                  Signup
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    "Signup"
+                  )}
+                  
                 </Button>
 
                 {/* Login Link */}

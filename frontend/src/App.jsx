@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";import Home from
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
@@ -17,7 +18,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
 
-        {/* <Toaster /> */}
+        <Toaster />
       </BrowserRouter>
     </>
   );

@@ -3,11 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Briefcase, Mail, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Briefcase, Mail, Lock, LoaderCircle} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { USER_API_POINT } from "../utils/constant";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "../store/slices/authSlice";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch(); 
+  const { loading } = useSelector((store) => store.auth);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,16 +25,31 @@ const Login = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    console.log(`${name}:`, value);
   };
 
   const handleRoleChange = (value) => {
     setFormData({ ...formData, role: value });
-    console.log("Role:", value);
   };
 
-  const handleLogin = () => {
-    console.log("Login Submitted:", formData);
+  const handleLogin = async () => {
+    try {
+      dispatch(setLoading(true));
+
+      const { data } = await axios.post(`${USER_API_POINT}/login`, formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (data.success) {
+        toast.success(data.data || data.message || "Login successful!");
+        navigate("/");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed");
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   return (
@@ -126,41 +149,30 @@ const Login = () => {
                   </RadioGroup>
                 </div>
 
-                {/* Forgot Password */}
-                <div className="flex items-center justify-end">
-                  <a
-                    href="#forgot-password"
-                    className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                  >
-                    Forgot Password?
-                  </a>
-                </div>
-
                 {/* Submit Button */}
                 <Button
                   onClick={handleLogin}
-                  className="w-full h-11 cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-medium text-base"
+                  disabled={loading}
+                  className="w-full h-11 cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Login
+                  {loading ? (
+                    <LoaderCircle className="h-5 w-5 animate-spin" />
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
 
-                {/* Signup Link */}
                 <p className="text-center text-sm text-gray-600">
                   Don't have an account?{" "}
                   <Link
                     to="/signup"
-                     className="text-purple-600 hover:text-purple-700 font-medium"
+                    className="text-purple-600 hover:text-purple-700 font-medium"
                   >
                     Sign up
                   </Link>
                 </p>
               </div>
             </div>
-
-            {/* Footer */}
-            <p className="text-center text-xs text-gray-500 mt-6">
-              Protected by reCAPTCHA and subject to the CareerHub Privacy Policy
-            </p>
           </div>
         </div>
       </Layout>
