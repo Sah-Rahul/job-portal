@@ -1,21 +1,20 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
-import asyncHandler from "../utilis/asyncHandler.js";
-import { ApiError } from "../utilis/ApiError.js";
-import { ApiResponse } from "../utilis/ApiResponse.js";
-import { sendToken } from "../utilis/sendTokens.js";
+import asyncHandler from "../utility/asyncHandler.js";
+import { ApiError } from "../utility/ApiError.js";
+import { ApiResponse } from "../utility/ApiResponse.js";
+import { sendToken } from "../utility/sendToken.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, phoneNumber, password, role } = req.body;
 
   if (!fullName || !email || !phoneNumber || !password || !role) {
-    throw new ApiError(400, "Something is missing");
+    throw new ApiError(400, "All fields are required.");
   }
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new ApiError(400, "User already exists with this email.");
+    throw new ApiError(409, "User already exists with this email.");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,82 +37,42 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new ApiResponse(201, "Account created successfully", userData));
+    .json(new ApiResponse(201, userData, "User registered successfully"));
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
 
-  // Validation
-  if (!email || !password || !role) {
-    throw new ApiError(400, "All fields are required");
+  if (!email || !password) {
+    throw new ApiError(400, "Email and password are required.");
   }
 
   const user = await User.findOne({ email });
   if (!user) {
-    throw new ApiError(404, "User not found");
+    throw new ApiError(401, "Invalid credentials.");
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw new ApiError(401, "Invalid credentials");
+    throw new ApiError(401, "Invalid credentials.");
   }
 
-  // Check role
-  if (role !== user.role) {
-    throw new ApiError(403, "Account doesn't exist with current role");
-  }
-
-  const token = jwt.sign(
-    {
-      userId: user._id,
-      role: user.role,
-    },
-    process.env.JWT_SECRET_KEY,
-    { expiresIn: "7d" }
-  );
-
-  const safeUser = {
-    _id: user._id,
-    fullName: user.fullName,
-    email: user.email,
-    phoneNumber: user.phoneNumber,
-    role: user.role,
-    profile: user.profile,
-  };
-
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "Lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        { user: safeUser, token },
-        `Welcome back, ${user.fullName}`
-      )
-    );
+  sendToken(res, user, "Logged in successfully");
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
+  res.clearCookie("jobPortal-token");
   return res
     .status(200)
-    .cookie("token", "", { maxAge: 0 })
     .json(new ApiResponse(200, null, "Logged out successfully."));
 });
 
 export const updateProfile = asyncHandler(async (req, res) => {
   const { fullName, email, phoneNumber, bio, skills } = req.body;
-  const file = req.file;
   const userId = req.id;
 
   const skillsArray =
-    skills && typeof skills === "string" ? skills.split(",") : [];
+    skills && typeof skills === "string" ? JSON.parse(skills) : [];
 
   const updateData = {
     fullName,
@@ -123,7 +82,6 @@ export const updateProfile = asyncHandler(async (req, res) => {
     "profile.skills": skillsArray,
   };
 
-  // Use findByIdAndUpdate with { new: true } to get the updated doc back
   const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
   if (!user) {

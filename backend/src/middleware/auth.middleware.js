@@ -1,26 +1,17 @@
 import jwt from "jsonwebtoken";
-import asyncHandler from "../utilis/asyncHandler.js";
-import { ApiError } from "../utilis/ApiError.js";
 
-export const isAuthenticated = asyncHandler(async (req, res, next) => {
-  const token =
-    req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
+export const isAuthenticated = (req, res, next) => {
+  const token = req.cookies["jobPortal-token"]; 
 
   if (!token) {
-    throw new ApiError(401, "Unauthorized request");
+    return res.status(401).json({ success: false, message: "Unauthorized - No token provided" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const userId = decoded.id;
-
-    if (!userId) {
-      throw new ApiError(401, "Invalid token payload");
-    }
-
-    req.id = userId;
+    req.id = decoded.id;
     next();
   } catch (error) {
-    throw new ApiError(401, error.message || "Invalid token");
+    return res.status(401).json({ success: false, message: "Invalid token" });
   }
-});
+};

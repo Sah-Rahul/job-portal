@@ -26,24 +26,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Layout from "../components/Layout";
+import EditProfile from "./EditProfile";
 
 const Profile = () => {
   const { user } = useSelector((store) => store.auth);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Sample user data - replace with actual Redux data
-  const userData = {
-    fullName: "Full Name",
-    bio: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iure dignissimos reprehenderit ducimus.",
-    email: "rahul@gmail.com",
-    phone: "9844556600",
-    location: "Kathmandu, Nepal",
-    skills: ["Html", "Css", "Javascript", "Reactjs", "Node.js", "MongoDB"],
-    resumeUrl: "Rahul Sah",
-    profileImage: null,
-  };
-
-  // Sample applied jobs data
   const appliedJobs = [
     {
       id: 1,
@@ -82,7 +70,7 @@ const Profile = () => {
       salary: "25 LPA",
     },
     {
-      id: 5,
+      id: 6,
       date: "10-07-2025",
       jobRole: "UI/UX Designer",
       company: "Netflix",
@@ -121,21 +109,33 @@ const Profile = () => {
     );
   };
 
+  const [userData, setUserData] = useState({
+    fullName: "Full Name",
+    bio: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iure dignissimos reprehenderit ducimus.",
+    email: "rahul@gmail.com",
+    phone: "9844556600",
+    location: "Kathmandu, Nepal",
+    skills: ["Html", "Css", "Javascript", "Reactjs", "Node.js", "MongoDB"],
+    resumeUrl: "Rahul Sah",
+    profileImage: null,
+  });
+
+  const handleSave = (updatedData) => {
+    setUserData(updatedData);
+    setIsEditing(false);
+  };
+
   return (
     <>
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-8 px-5 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto space-y-8">
-            {/* Profile Card */}
             <Card className="overflow-hidden border-0 shadow-2xl">
-              {/* Header Background */}
               <div className="h-40 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 relative">
                 <div className="absolute inset-0 bg-black opacity-10"></div>
               </div>
-
               <CardContent className="px-6 sm:px-8 pb-8 pt-0">
                 <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-20 mb-8">
-                  {/* Avatar */}
                   <div className="relative group">
                     <div className="w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-400 via-purple-500 to-blue-500 border-4 border-white shadow-2xl flex items-center justify-center overflow-hidden">
                       {userData.profileImage ? (
@@ -155,8 +155,6 @@ const Profile = () => {
                       )}
                     </div>
                   </div>
-
-                  {/* Name and Bio */}
                   <div className="flex-1 w-full">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
                       <div>
@@ -169,12 +167,19 @@ const Profile = () => {
                         </div>
                       </div>
                       <Button
-                        onClick={() => setIsEditing(!isEditing)}
-                        className="bg-purple-500 hover:bg-purple-600 text-white shadow-lg"
+                        onClick={() => setIsEditing(true)}
+                        className="bg-purple-500 cursor-pointer hover:bg-purple-600 text-white shadow-lg"
                       >
                         <Edit2 className="w-4 h-4 mr-2" />
                         Edit Profile
                       </Button>
+                      {isEditing && (
+                        <EditProfile
+                          userData={userData}
+                          onClose={() => setIsEditing(false)}
+                          onSave={handleSave}
+                        />
+                      )}
                     </div>
                     <p className="text-gray-600 text-base max-w-3xl">
                       {userData.bio}
@@ -182,7 +187,6 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Contact Info Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                   <Card className="border-purple-100 bg-gradient-to-br from-purple-50 to-white">
                     <CardContent className="flex items-center gap-4 p-5">
@@ -217,7 +221,6 @@ const Profile = () => {
                   </Card>
                 </div>
 
-                {/* Skills Section */}
                 <div className="mb-8">
                   <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-purple-500 rounded-full"></div>
@@ -235,7 +238,6 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Resume Section */}
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-purple-500 rounded-full"></div>
@@ -249,7 +251,6 @@ const Profile = () => {
               </CardContent>
             </Card>
 
-            {/* Applied Jobs Section with Shadcn Table */}
             <Card className="border-0 shadow-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-purple-500 to-blue-500 text-white p-8">
                 <div className="flex items-center justify-between">
@@ -273,7 +274,6 @@ const Profile = () => {
               </CardHeader>
 
               <CardContent className="p-0">
-                {/* Desktop Table View */}
                 <div className="hidden md:block">
                   <Table>
                     <TableHeader>
@@ -353,7 +353,6 @@ const Profile = () => {
                   </Table>
                 </div>
 
-                {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-gray-200">
                   {appliedJobs.map((job) => (
                     <Card

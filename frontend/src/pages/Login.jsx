@@ -41,11 +41,9 @@ const Login = () => {
       });
 
       if (data.success) {
-        dispatch(setUser(data.data.user));
+        dispatch(setUser({ user: data.data.user, token: data.data.token }));
         toast.success(data.message || "Login successful!");
         navigate("/");
-      } else {
-        toast.error(data.message || "Login failed");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
