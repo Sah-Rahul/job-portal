@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import asyncHandler from "../utilis/asyncHandler.js";
 import { ApiError } from "../utilis/ApiError.js";
@@ -45,25 +46,58 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   // Validation
   if (!email || !password || !role) {
-    throw new ApiError(400, "Something is missing");
+    throw new ApiError(400, "All fields are required");
   }
 
-  let user = await User.findOne({ email });
+  const user = await User.findOne({ email });
   if (!user) {
-    throw new ApiError(400, "Incorrect email or password.");
+    throw new ApiError(404, "User not found");
   }
 
-  // Compare password
-  const isPasswordMatch = await bcrypt.compare(password, user.password);
-  if (!isPasswordMatch) {
-    throw new ApiError(400, "Incorrect credentials");
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new ApiError(401, "Invalid credentials");
   }
 
+  // Check role
   if (role !== user.role) {
-    throw new ApiError(400, "Account doesn't exist with current role.");
+    throw new ApiError(403, "Account doesn't exist with current role");
   }
 
-  sendToken(user, 200, res, `Welcome back ${user.fullName}`);
+  const token = jwt.sign(
+    {
+      userId: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: "7d" }
+  );
+
+  const safeUser = {
+    _id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    role: user.role,
+    profile: user.profile,
+  };
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { user: safeUser, token },
+        `Welcome back, ${user.fullName}`
+      )
+    );
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
@@ -78,11 +112,9 @@ export const updateProfile = asyncHandler(async (req, res) => {
   const file = req.file;
   const userId = req.id;
 
-  // Check if skills is provided and is a string, else use empty array
   const skillsArray =
     skills && typeof skills === "string" ? skills.split(",") : [];
 
-  // Build update object including nested fields
   const updateData = {
     fullName,
     email,

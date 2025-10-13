@@ -2,9 +2,14 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-export const sendToken = (user, statusCode, res, message = "Logged in successfully") => {
+export const sendToken = (
+  user,
+  statusCode,
+  res,
+  message = "Logged in successfully"
+) => {
   const expiresIn = process.env.JWT_EXPIRES_IN || "5d";
-  const days = parseInt(expiresIn); // parse number of days from '7d'
+  const days = parseInt(expiresIn);
 
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
     expiresIn,
@@ -14,7 +19,7 @@ export const sendToken = (user, statusCode, res, message = "Logged in successful
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "Strict",
-    maxAge: days * 24 * 60 * 60 * 1000, // convert days to milliseconds
+    maxAge: days * 24 * 60 * 60 * 1000,
   };
 
   return res.status(statusCode).cookie("token", token, cookieOptions).json({

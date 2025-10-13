@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X, Briefcase, Home, Search, User, LogOut } from "lucide-react";
+import { Menu, X, Briefcase, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,22 +10,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link,  } from "react-router-dom"
-
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+// import { logout } from "@/store/slices/authSlice";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const user = false;
+  const { user } = useSelector((store) => store.auth);
 
   const navLinks = [
-    { name: "Home", href: "#home" },
-    { name: "Jobs", href: "#jobs" },
-    { name: "Browse", href: "#browse" },
+    { name: "Home", href: "/" },
+    { name: "Jobs", href: "/jobs" },
+    { name: "Browse", href: "/job-browse" },
   ];
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -42,18 +51,17 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Auth Buttons */}
+          {/* Desktop Navigation and Auth Buttons */}
           <div className="hidden md:flex items-center space-x-7">
-            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.name}
-                  href={link.href}
+                  to={link.href}
                   className="text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium flex items-center space-x-1"
                 >
                   <span>{link.name}</span>
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -65,9 +73,12 @@ const Navbar = () => {
                     className="relative h-10 w-10 rounded-full"
                   >
                     <Avatar className="h-10 w-10 cursor-pointer">
-                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarImage
+                        src={user.profile?.profilePhoto}
+                        alt={user.fullName}
+                      />
                       <AvatarFallback className="bg-purple-600 text-white">
-                        {user.name?.charAt(0) || "R"}
+                        {user.fullName?.charAt(0) || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -75,21 +86,23 @@ const Navbar = () => {
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-sm font-medium">{user.fullName}</p>
                       <p className="text-xs text-gray-500">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/my-applications")}
+                  >
                     <Briefcase className="mr-2 h-4 w-4" />
                     <span>My Applications</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setUser(null)}>
+                  <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>
@@ -97,7 +110,7 @@ const Navbar = () => {
               </DropdownMenu>
             ) : (
               <>
-                <Link to={"/login"}>
+                <Link to="/login">
                   <Button
                     variant="ghost"
                     className="text-gray-700 cursor-pointer hover:text-purple-600"
@@ -106,7 +119,7 @@ const Navbar = () => {
                   </Button>
                 </Link>
 
-                <Link to={"/signup"}>
+                <Link to="/signup">
                   <Button className="bg-purple-600 cursor-pointer hover:bg-purple-700 text-white">
                     Signup
                   </Button>
@@ -137,15 +150,14 @@ const Navbar = () => {
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.name}
-                  href={link.href}
+                  to={link.href}
                   className="text-gray-700 hover:text-purple-600 transition-colors duration-200 font-medium flex items-center space-x-2 px-2 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                
                   <span>{link.name}</span>
-                </a>
+                </Link>
               ))}
 
               <div className="pt-4 border-t border-gray-200">
@@ -153,37 +165,51 @@ const Navbar = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3 px-2 py-2">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarImage
+                          src={user.profile?.profilePhoto}
+                          alt={user.fullName}
+                        />
                         <AvatarFallback className="bg-purple-600 text-white">
-                          {user.name?.charAt(0) || "U"}
+                          {user.fullName?.charAt(0) || "U"}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-medium">{user.name}</p>
+                        <p className="text-sm font-medium">{user.fullName}</p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-gray-700"
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-gray-700"
-                    >
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      My Applications
-                    </Button>
+                    <Link to={"/profile"}>
+                      <Button
+                        variant="ghost"
+                        className="w-full cursor-pointer justify-start text-gray-700"
+                        onClick={() => {
+                          navigate("/profile");
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Button>
+                    </Link>
+
+                    <Link to={"/my-applications"}>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-gray-700"
+                        onClick={() => {
+                          navigate("/my-applications");
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        My Applications
+                      </Button>
+                    </Link>
+
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-red-600 hover:text-red-700"
-                      onClick={() => {
-                        setUser(null);
-                        setIsMobileMenuOpen(false);
-                      }}
+                      // onClick={handleLogout}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       Log out
@@ -191,33 +217,23 @@ const Navbar = () => {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        setUser({
-                          name: "John Doe",
-                          email: "john@example.com",
-                          avatar: "",
-                        });
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      Login
-                    </Button>
-                    <Button
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                      onClick={() => {
-                        setUser({
-                          name: "John Doe",
-                          email: "john@example.com",
-                          avatar: "",
-                        });
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      Signup
-                    </Button>
+                    <Link to="/login">
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Login
+                      </Button>
+                    </Link>
+                    <Link to="/signup">
+                      <Button
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Signup
+                      </Button>
+                    </Link>
                   </div>
                 )}
               </div>
