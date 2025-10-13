@@ -41,9 +41,9 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
-  if (!email || !password) {
+  if (!email || !password || !role) {
     throw new ApiError(400, "Email and password are required.");
   }
 
@@ -57,6 +57,9 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid credentials.");
   }
 
+  if (role !== user.role) {
+    throw new ApiError(401, "Account doesn't exit this current role.");
+  }
   sendToken(res, user, "Logged in successfully");
 });
 
@@ -70,6 +73,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
 export const updateProfile = asyncHandler(async (req, res) => {
   const { fullName, email, phoneNumber, bio, skills } = req.body;
   const userId = req.id;
+  const file = req.file;
 
   const skillsArray =
     skills && typeof skills === "string" ? JSON.parse(skills) : [];
