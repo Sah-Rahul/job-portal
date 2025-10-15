@@ -1,113 +1,140 @@
 import Job from "../models/job.model.js";
-import { ApiError } from "../utility/ApiError.js";
-import { ApiResponse } from "../utility/ApiResponse.js";
-import asyncHandler from "../utility/asyncHandler.js";
+import Company from "../models/company.model.js";
 
-export const postJob = asyncHandler(async (req, res) => {
-  const {
-    title,
-    description,
-    requirements,
-    salary,
-    location,
-    jobType,
-    experience,
-    position,
-    companyId,
-    experienceLevel,
-  } = req.body;
+export const postJob = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      requirements,
+      salary,
+      location,
+      jobType,
+      experienceLevel,
+      position,
+      companyId,
+    } = req.body;
 
-  if (
-    !title ||
-    !description ||
-    !requirements ||
-    !salary ||
-    !location ||
-    !jobType ||
-    !experience ||
-    !position ||
-    !companyId ||
-    !experienceLevel
-  ) {
-    throw new ApiError(400, "All fields are required.");
+    if (
+      !title ||
+      !description ||
+      !requirements ||
+      !salary ||
+      !location ||
+      !jobType ||
+      !experienceLevel ||
+      !position ||
+      !companyId
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required.",
+      });
+    }
+
+    const company = await Company.findById(companyId);
+    if (!company) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid company ID. Company not found.",
+      });
+    }
+
+    const job = await Job.create({
+      title,
+      description,
+      requirements: requirements.split(",").map((req) => req.trim()),
+      salary,
+      location,
+      jobType,
+      experienceLevel,
+      position,
+      company: companyId,
+      created_by: req.id,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Job posted successfully.",
+      job,
+    });
+  } catch (error) {
+    console.error("Post Job Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
+};
 
-  const newJob = await Job.create({
-    title,
-    description,
-    requirements,
-    salary,
-    location,
-    jobType,
-    experience,
-    position,
-    company: companyId,
-    experienceLevel,
-    created_by: req.id,
-  });
+export const getAllJobs = async (req, res) => {
+  try {
+    const keyword = req.query.keyword || "";
 
-  return res
-    .status(201)
-    .json(new ApiResponse(201, newJob, "Job posted successfully."));
-});
+    const query = {
+      $or: [
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ],
+    };
 
-export const getAllJobs = asyncHandler(async (req, res) => {
-  const keyword = req.query.keyword?.trim() || "";
+    const jobs = await Job.find(query).populate("company");
 
-  const query = keyword
-    ? {
-        $or: [
-          { title: { $regex: keyword, $options: "i" } },
-          { description: { $regex: keyword, $options: "i" } },
-        ],
-      }
-    : {};
-
-  const jobs = await Job.find(query)
-    .populate({
-      path: "company",
-    })
-    .sort({ createdAt: -1 });
-
-  if (!jobs || jobs.length === 0) {
-    throw new ApiError(404, "No jobs found.");
+    return res.status(200).json({
+      success: true,
+      jobs,
+    });
+  } catch (error) {
+    console.error("Get All Jobs Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
+};
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, jobs, "Jobs fetched successfully."));
-});
+export const getJobById = async (req, res) => {
+  try {
+    const jobId = req.params.jobId;
 
-export const getJobById = asyncHandler(async (req, res) => {
-  const jobId = req.params.jobId;
+    const job = await Job.findById(jobId).populate("company", "name location");
 
-  const job = await Job.findById(jobId).populate({
-    path: "company",
-  });
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found.",
+      });
+    }
 
-  if (!job) {
-    throw new ApiError(404, "Job not found");
+    return res.status(200).json({
+      success: true,
+      job,
+    });
+  } catch (error) {
+    console.error("Get Job By ID Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
+};
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, job, "Job fetched successfully."));
-});
+export const getAdminJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find({ created_by: req.id }).populate(
+      "company",
+      "name"
+    );
 
-export const getAdminJobs = asyncHandler(async (req, res) => {
-  const adminId = req.id;
-
-  const jobs = await Job.find({ created_by: adminId })
-    .populate({
-      path: "company",
-    })
-    .sort({ createdAt: -1 });
-
-  if (!jobs || jobs.length === 0) {
-    throw new ApiError(404, "No jobs found for this admin");
+    return res.status(200).json({
+      success: true,
+      jobs,
+    });
+  } catch (error) {
+    console.error("Get Admin Jobs Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, jobs, "Admin jobs fetched successfully."));
-});
+};

@@ -8,14 +8,10 @@ import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { USER_API_POINT } from "../utils/constant";
-import { useDispatch, useSelector } from "react-redux";
-import { setLoading, setUser } from "../store/slices/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { loading } = useSelector((store) => store.auth);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -31,32 +27,12 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, role: value }));
   };
 
-  const handleLogin = async () => {
-    try {
-      dispatch(setLoading(true));
-
-      const { data } = await axios.post(`${USER_API_POINT}/login`, formData, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      });
-
-      if (data.success) {
-        dispatch(setUser({ user: data.data.user, token: data.data.token }));
-        toast.success(data.message || "Login successful!");
-        navigate("/");
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+  const handleLogin = async () => {};
 
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
-          {/* Logo */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center space-x-2 mb-2">
               <Briefcase className="h-10 w-10 text-purple-600" />
@@ -69,20 +45,15 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Login Form */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Login</h2>
 
             <div className="space-y-5">
-              {/* Email */}
               <div>
-                <Label htmlFor="email" className="text-gray-700 font-medium">
-                  Email
-                </Label>
+                <Label>Email</Label>
                 <div className="relative mt-1">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
-                    id="email"
                     name="email"
                     type="email"
                     placeholder="you@example.com"
@@ -94,15 +65,11 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Password */}
               <div>
-                <Label htmlFor="password" className="text-gray-700 font-medium">
-                  Password
-                </Label>
+                <Label>Password</Label>
                 <div className="relative mt-1">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
-                    id="password"
                     name="password"
                     type="password"
                     placeholder="Enter your password"
@@ -114,11 +81,8 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Role Selection */}
               <div>
-                <Label className="text-gray-700 font-medium mb-3 block">
-                  Login as
-                </Label>
+                <Label>Login as</Label>
                 <RadioGroup
                   value={formData.role}
                   onValueChange={handleRoleChange}
@@ -126,30 +90,19 @@ const Login = () => {
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="student" id="student" />
-                    <Label
-                      htmlFor="student"
-                      className="cursor-pointer font-normal"
-                    >
-                      Student
-                    </Label>
+                    <Label htmlFor="student">Student</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="recruiter" id="recruiter" />
-                    <Label
-                      htmlFor="recruiter"
-                      className="cursor-pointer font-normal"
-                    >
-                      Recruiter
-                    </Label>
+                    <Label htmlFor="recruiter">Recruiter</Label>
                   </div>
                 </RadioGroup>
               </div>
 
-              {/* Submit Button */}
               <Button
                 onClick={handleLogin}
                 disabled={loading}
-                className="w-full h-11 cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-11 bg-purple-600 hover:bg-purple-700 text-white font-medium"
               >
                 {loading ? (
                   <LoaderCircle className="h-5 w-5 animate-spin" />

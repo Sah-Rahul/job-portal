@@ -138,9 +138,9 @@ const Profile = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-20 mb-8">
                   <div className="relative group">
                     <div className="w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-400 via-purple-500 to-blue-500 border-4 border-white shadow-2xl flex items-center justify-center overflow-hidden">
-                      {userData.profileImage ? (
+                      {user?.profileImage ? (
                         <img
-                          src={userData.profileImage}
+                          src={user?.profileImage}
                           alt="Profile"
                           className="w-full h-full object-cover"
                         />
@@ -159,11 +159,11 @@ const Profile = () => {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
                       <div>
                         <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                          {userData.fullName}
+                          {user?.fullName}
                         </h1>
                         <div className="flex items-center gap-2 text-gray-600">
                           <MapPin className="w-4 h-4" />
-                          <span className="text-sm">{userData.location}</span>
+                          <span className="text-sm">{user?.location}</span>
                         </div>
                       </div>
                       <Button
@@ -175,14 +175,14 @@ const Profile = () => {
                       </Button>
                       {isEditing && (
                         <EditProfile
-                          userData={userData}
+                          user={user}
                           onClose={() => setIsEditing(false)}
                           onSave={handleSave}
                         />
                       )}
                     </div>
                     <p className="text-gray-600 text-base max-w-3xl">
-                      {userData.bio}
+                      {user?.bio}
                     </p>
                   </div>
                 </div>
@@ -198,7 +198,7 @@ const Profile = () => {
                           Email Address
                         </p>
                         <p className="text-base font-bold text-gray-900">
-                          {userData.email}
+                          {user?.email}
                         </p>
                       </div>
                     </CardContent>
@@ -214,7 +214,7 @@ const Profile = () => {
                           Phone Number
                         </p>
                         <p className="text-base font-bold text-gray-900">
-                          {userData.phone}
+                          {user?.phone}
                         </p>
                       </div>
                     </CardContent>
@@ -227,7 +227,7 @@ const Profile = () => {
                     Technical Skills
                   </h3>
                   <div className="flex flex-wrap gap-3">
-                    {userData.skills.map((skill, index) => (
+                    {user?.profile?.skills?.map((skill, index) => (
                       <Badge
                         key={index}
                         className="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
@@ -245,7 +245,7 @@ const Profile = () => {
                   </h3>
                   <Button className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl">
                     <Download className="w-5 h-5 mr-2" />
-                    Download {userData.resumeUrl}
+                    Download {user?.resumeUrl}
                   </Button>
                 </div>
               </CardContent>

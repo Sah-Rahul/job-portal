@@ -1,86 +1,129 @@
 import Company from "../models/company.model.js";
-import { ApiError } from "../utility/ApiError.js";
-import { ApiResponse } from "../utility/ApiResponse.js";
-import asyncHandler from "../utility/asyncHandler.js";
 
-export const createCompany = asyncHandler(async (req, res) => {
-  const { companyName, website, location } = req.body;
+export const createCompany = async (req, res) => {
+  try {
+    const { name } = req.body;
 
-  const existingCompany = await Company.findOne({ name: companyName });
-  if (existingCompany) {
-    throw new ApiError(409, "Company name already exists.");
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: "Company name is required.",
+      });
+    }
+
+    const existingCompany = await Company.findOne({ name });
+    if (existingCompany) {
+      return res.status(400).json({
+        success: false,
+        message: "Company name already exists.",
+      });
+    }
+
+    const company = await Company.create({
+      name,
+      userId: req.id,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Company created successfully.",
+      company,
+    });
+  } catch (error) {
+    console.error("Create Company Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
+};
 
-  const newCompany = await Company.create({
-    name: companyName,
-    website,
-    location,
-    userId: req.id,
-  });
+export const getCompany = async (req, res) => {
+  try {
+    const userId = req.id;
 
-  return res
-    .status(201)
-    .json(new ApiResponse(201, newCompany, "Company registered successfully"));
-});
+    const company = await Company.findOne({ userId });
 
-export const getCompanies = asyncHandler(async (req, res) => {
-  const userId = req.id;
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found for this user.",
+      });
+    }
 
-  const companies = await Company.find({ userId });
-
-  if (!companies || companies.length === 0) {
-    throw new ApiError(404, "No companies found for this user.");
+    return res.status(200).json({
+      success: true,
+      company,
+    });
+  } catch (error) {
+    console.error("Get Company Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
+};
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, companies, "Companies fetched successfully."));
-});
+export const getCompanyById = async (req, res) => {
+  try {
+    const companyId = req.params.id;
 
-export const getCompanyById = asyncHandler(async (req, res) => {
-  const companyId = req.params.companyId;
+    const company = await Company.findById(companyId);
 
-  const company = await Company.findById(companyId);
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found.",
+      });
+    }
 
-  if (!company) {
-    throw new ApiError(404, "Company not found.");
+    return res.status(200).json({
+      success: true,
+      company,
+    });
+  } catch (error) {
+    console.error("Get Company By ID Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
+};
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, company, "Company fetched successfully."));
-});
+export const updateCompany = async (req, res) => {
+  try {
+    const companyId = req.params.id;
+    const { name, description, website, location } = req.body;
 
-export const updateCompany = asyncHandler(async (req, res) => {
-  const companyId = req.params.companyId;
-  const { name, description, website, location } = req.body;
-  const file = req.file;
+    const company = await Company.findById(companyId);
 
-  const updateData = {
-    ...(name && { name }),
-    ...(description && { description }),
-    ...(website && { website }),
-    ...(location && { location }),
-  };
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found.",
+      });
+    }
 
-  const company = await Company.findById(companyId);
-  if (!company) {
-    throw new ApiError(404, "Company not found.");
+    const updateData = {};
+    if (name) updateData.companyName = name;
+    if (description) updateData.description = description;
+    if (website) updateData.website = website;
+    if (location) updateData.location = location;
+
+    await Company.updateOne({ _id: companyId }, { $set: updateData });
+
+    const updatedCompany = await Company.findById(companyId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Company updated successfully.",
+      company: updatedCompany,
+    });
+  } catch (error) {
+    console.error("Update Company Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
-
-  const updatedCompany = await Company.findByIdAndUpdate(
-    companyId,
-    { $set: updateData },
-    { new: true, runValidators: true }
-  );
-
-  if (!updatedCompany) {
-    throw new ApiError(404, "Company update failed.");
-  }
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, updatedCompany, "Company updated successfully.")
-    );
-});
+};
