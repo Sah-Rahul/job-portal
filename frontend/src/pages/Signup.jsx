@@ -3,19 +3,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Briefcase, User, Mail, Phone, Lock, Upload, Loader2 } from "lucide-react";
+import {
+  Briefcase,
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Upload,
+  Loader2,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
-import { USER_API_POINT } from "../utils/constant.js";
 import axios from "axios";
+import { USER_API_POINT } from "../utils/constant";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../store/slices/authSlice";
 
 const Signup = () => {
-  const dispatch = useDispatch();
-  const { loading } = useSelector((store) => store.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -39,8 +48,9 @@ const Signup = () => {
     setFormData({ ...formData, role: value });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
     try {
+      e.preventDefault();
       dispatch(setLoading(true));
 
       const form = new FormData();
@@ -57,13 +67,17 @@ const Signup = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true,
       });
-      if (data.success) {
-        toast.success(data.data || data.message || "Registration successful!");
-      }
+
+      console.log(data);
+      toast.success("Signup successful.");
       navigate("/login");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
+      console.error("Signup error:", error);
+      toast.error(
+        error.response?.data?.message || "Signup failed. Please try again."
+      );
     } finally {
       dispatch(setLoading(false));
     }
@@ -181,7 +195,6 @@ const Signup = () => {
                   </div>
                 </div>
 
-                {/* Role Selection and Profile Upload */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <RadioGroup
                     value={formData.role}
@@ -245,10 +258,8 @@ const Signup = () => {
                   ) : (
                     "Signup"
                   )}
-                  
                 </Button>
 
-                {/* Login Link */}
                 <p className="text-center text-sm text-gray-600">
                   Already have an account?{" "}
                   <Link
@@ -260,12 +271,6 @@ const Signup = () => {
                 </p>
               </div>
             </div>
-
-            {/* Footer */}
-            <p className="text-center text-xs text-gray-500 mt-6">
-              By signing up, you agree to our Terms of Service and Privacy
-              Policy
-            </p>
           </div>
         </div>
       </Layout>

@@ -4,7 +4,6 @@ import {
   Mail,
   Phone,
   Edit2,
-  FileText,
   Briefcase,
   Calendar,
   Building2,
@@ -27,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Layout from "../components/Layout";
 import EditProfile from "./EditProfile";
+import { BASE_URL } from "../utils/constant";
 
 const Profile = () => {
   const { user } = useSelector((store) => store.auth);
@@ -109,17 +109,6 @@ const Profile = () => {
     );
   };
 
-  const [userData, setUserData] = useState({
-    fullName: "Full Name",
-    bio: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iure dignissimos reprehenderit ducimus.",
-    email: "rahul@gmail.com",
-    phone: "9844556600",
-    location: "Kathmandu, Nepal",
-    skills: ["Html", "Css", "Javascript", "Reactjs", "Node.js", "MongoDB"],
-    resumeUrl: "Rahul Sah",
-    profileImage: null,
-  });
-
   const handleSave = (updatedData) => {
     setUserData(updatedData);
     setIsEditing(false);
@@ -138,9 +127,16 @@ const Profile = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-20 mb-8">
                   <div className="relative group">
                     <div className="w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-400 via-purple-500 to-blue-500 border-4 border-white shadow-2xl flex items-center justify-center overflow-hidden">
-                      {user?.profileImage ? (
+                      {user?.profile.avatar ? (
                         <img
-                          src={user?.profileImage}
+                          src={
+                            user?.profile?.avatar
+                              ? `${BASE_URL}/${user.profile.avatar.replace(
+                                  "public/",
+                                  ""
+                                )}`
+                              : "/default.png"
+                          }
                           alt="Profile"
                           className="w-full h-full object-cover"
                         />
@@ -164,6 +160,11 @@ const Profile = () => {
                         <div className="flex items-center gap-2 text-gray-600">
                           <MapPin className="w-4 h-4" />
                           <span className="text-sm">{user?.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <p className="text-gray-600 text-base max-w-3xl">
+                            {user?.profile?.bio}
+                          </p>
                         </div>
                       </div>
                       <Button
@@ -214,7 +215,7 @@ const Profile = () => {
                           Phone Number
                         </p>
                         <p className="text-base font-bold text-gray-900">
-                          {user?.phone}
+                          {user?.phoneNumber}
                         </p>
                       </div>
                     </CardContent>

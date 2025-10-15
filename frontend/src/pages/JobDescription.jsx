@@ -53,14 +53,14 @@ const JobDescription = () => {
                   <h1 className="text-3xl font-bold text-white mb-2">
                     {jobData.title}
                   </h1>
-                  <div className="flex flex-wrap gap-3">
-                    <span className="px-3 py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white text-sm font-medium rounded-full border border-white border-opacity-30">
+                  <div className="flex  flex-wrap gap-3">
+                    <span className="px-3 py-1 bg-white bg-opacity-20 backdrop-blur-sm text-black text-sm font-medium rounded-full border border-white border-opacity-30">
                       {jobData.positions} Positions
                     </span>
-                    <span className="px-3 py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white text-sm font-medium rounded-full border border-white border-opacity-30">
+                    <span className="px-3 py-1 bg-white bg-opacity-20 backdrop-blur-sm text-black text-sm font-medium rounded-full border border-white border-opacity-30">
                       {jobData.jobType}
                     </span>
-                    <span className="px-3 py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white text-sm font-medium rounded-full border border-white border-opacity-30">
+                    <span className="px-3 py-1 bg-white bg-opacity-20 backdrop-blur-sm text-black text-sm font-medium rounded-full border border-white border-opacity-30">
                       {jobData.salary}
                     </span>
                   </div>

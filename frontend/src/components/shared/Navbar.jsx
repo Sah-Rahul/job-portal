@@ -12,7 +12,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-// import { logout } from "@/store/slices/authSlice";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -32,9 +31,15 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    // You should also clear user state from Redux/auth slice here if implemented
     navigate("/login");
     setIsMobileMenuOpen(false);
+  };
+
+  const getAvatarSrc = () => {
+    return user?.profile?.profilePhoto?.trim()
+      ? user.profile.profilePhoto
+      : `https://avatar.iran.liara.run/public/${encodeURIComponent(user?.fullName || "User")}`;
   };
 
   return (
@@ -73,10 +78,7 @@ const Navbar = () => {
                     className="relative h-10 w-10 rounded-full"
                   >
                     <Avatar className="h-10 w-10 cursor-pointer">
-                      <AvatarImage
-                        src={user.profile?.profilePhoto}
-                        alt={user.fullName}
-                      />
+                      <AvatarImage src={getAvatarSrc()} alt={user.fullName} />
                       <AvatarFallback className="bg-purple-600 text-white">
                         {user.fullName?.charAt(0) || "U"}
                       </AvatarFallback>
@@ -165,10 +167,7 @@ const Navbar = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3 px-2 py-2">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage
-                          src={user.profile?.profilePhoto}
-                          alt={user.fullName}
-                        />
+                        <AvatarImage src={getAvatarSrc()} alt={user.fullName} />
                         <AvatarFallback className="bg-purple-600 text-white">
                           {user.fullName?.charAt(0) || "U"}
                         </AvatarFallback>
@@ -181,7 +180,7 @@ const Navbar = () => {
                     <Link to={"/profile"}>
                       <Button
                         variant="ghost"
-                        className="w-full cursor-pointer justify-start text-gray-700"
+                        className="w-full justify-start text-gray-700"
                         onClick={() => {
                           navigate("/profile");
                           setIsMobileMenuOpen(false);
@@ -209,7 +208,7 @@ const Navbar = () => {
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-red-600 hover:text-red-700"
-                      // onClick={handleLogout}
+                      onClick={handleLogout}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       Log out

@@ -8,10 +8,13 @@ import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import toast from "react-hot-toast";
 import axios from "axios";
-
+import { USER_API_POINT } from "../utils/constant";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setUser } from "../store/slices/authSlice";
 const Login = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,7 +30,31 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, role: value }));
   };
 
-  const handleLogin = async () => {};
+  const handleLogin = async (e) => {
+    try {
+      e.preventDefault();
+      dispatch(setLoading(true));
+
+      const { data } = await axios.post(`${USER_API_POINT}/login`, formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      console.log(data);
+      toast.success(data.message);
+      dispatch(setUser(data.user))
+      navigate("/");
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
   return (
     <Layout>

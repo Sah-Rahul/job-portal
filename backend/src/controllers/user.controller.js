@@ -153,6 +153,7 @@ export const logoutUser = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.id;
+
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -160,8 +161,21 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    const { fullName, email, phoneNumber, bio, skills } = req.body;
-    const file = req.file;
+    let { fullName, email, phoneNumber, location, bio, skills } = req.body;
+
+   
+    if (typeof skills === "string") {
+      try {
+        const parsed = JSON.parse(skills);
+        skills = Array.isArray(parsed) ? parsed.map((s) => s.trim()) : [];
+      } catch (err) {
+        skills = skills.split(",").map((s) => s.trim());
+      }
+    }
+
+    const files = req.files || {};
+    const avatar = files?.avatar?.[0];
+    const resume = files?.resume?.[0];
 
     const user = await User.findById(userId);
     if (!user) {
@@ -171,20 +185,26 @@ export const updateProfile = async (req, res) => {
       });
     }
 
+     
     user.fullName = fullName || user.fullName;
     user.email = email || user.email;
     user.phoneNumber = phoneNumber || user.phoneNumber;
+    user.location = location || user.location;
+
+     
     user.profile = user.profile || {};
     user.profile.bio = bio || user.profile.bio;
-
     user.profile.skills = Array.isArray(skills)
       ? skills
-      : typeof skills === "string" && skills.length > 0
-      ? skills.split(",").map((skill) => skill.trim())
       : user.profile.skills || [];
 
-    if (file) {
-      user.profile.avatar = file.path;
+   
+    if (avatar) {
+      user.profile.avatar = avatar.path;
+    }
+
+    if (resume) {
+      user.profile.resume = resume.path;
     }
 
     await user.save();
@@ -197,8 +217,14 @@ export const updateProfile = async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         phoneNumber: user.phoneNumber,
+        location: user.location,
         role: user.role,
-        profile: user.profile,
+        profile: {
+          bio: user.profile.bio,
+          skills: user.profile.skills,
+          avatar: user.profile.avatar,
+          resume: user.profile.resume,
+        },
       },
     });
   } catch (error) {

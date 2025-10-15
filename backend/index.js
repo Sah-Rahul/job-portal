@@ -27,6 +27,7 @@ app.use(
   })
 );
 
+app.use("/temp", express.static("public/temp"));
 app.use('/api/v1/auth', userRouter)
 app.use('/api/v1/company', companyRouter)
 app.use('/api/v1/job', jobRouter)
