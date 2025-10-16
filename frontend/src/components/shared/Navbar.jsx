@@ -12,6 +12,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import { USER_API_POINT } from "../../utils/constant";
+import toast from "react-hot-toast";
+import { logoutUser } from "../../store/slices/authSlice";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -23,23 +27,39 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Jobs", href: "/jobs" },
-    { name: "Browse", href: "/job-browse" },
   ];
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleLogout = () => {
-    // You should also clear user state from Redux/auth slice here if implemented
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      const { data } = await axios.post(
+        `${USER_API_POINT}/logout`,
+        {},
+        { withCredentials: true }
+      );
+      console.log("Logout response:", data);
+
+      dispatch(logoutUser());
+      toast.success("Logout successful.");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed.");
+    }
+
     setIsMobileMenuOpen(false);
   };
 
   const getAvatarSrc = () => {
     return user?.profile?.profilePhoto?.trim()
       ? user.profile.profilePhoto
-      : `https://avatar.iran.liara.run/public/${encodeURIComponent(user?.fullName || "User")}`;
+      : `https://avatar.iran.liara.run/public/boy/${encodeURIComponent(
+          user?.fullName || "User"
+        )}`;
+         
   };
 
   return (

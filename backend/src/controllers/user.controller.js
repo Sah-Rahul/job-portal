@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import cloudinary from "../config/cloudinary.config.js";
 
 export const registerUser = async (req, res) => {
   try {
@@ -128,6 +129,7 @@ export const loginUser = async (req, res) => {
 };
 
 export const logoutUser = async (req, res) => {
+  console.log("Logout route hit"); // 👈 Add this
   try {
     return res
       .status(200)
@@ -163,7 +165,6 @@ export const updateProfile = async (req, res) => {
 
     let { fullName, email, phoneNumber, location, bio, skills } = req.body;
 
-   
     if (typeof skills === "string") {
       try {
         const parsed = JSON.parse(skills);
@@ -185,20 +186,17 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-     
     user.fullName = fullName || user.fullName;
     user.email = email || user.email;
     user.phoneNumber = phoneNumber || user.phoneNumber;
     user.location = location || user.location;
 
-     
     user.profile = user.profile || {};
     user.profile.bio = bio || user.profile.bio;
     user.profile.skills = Array.isArray(skills)
       ? skills
       : user.profile.skills || [];
 
-   
     if (avatar) {
       user.profile.avatar = avatar.path;
     }
@@ -235,3 +233,6 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
+
+ 
+ 
